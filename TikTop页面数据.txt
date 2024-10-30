@@ -1,0 +1,35 @@
+网页元素
+登陆页面：
+	切换邮箱登录CSS：#TikTok_Ads_SSO_Login_Email_Panel_Button
+	邮箱号输入框CSS：#TikTok_Ads_SSO_Login_Email_Input
+	输入密码框CSS：#TikTok_Ads_SSO_Login_Pwd_Input
+	登录按钮CSS：#TikTok_Ads_SSO_Login_Btn
+首页：
+	达人按钮CSS：button[data-e2e="e9e98bcf-9e15-8681"] span
+	达人机构XPATH：//*[@id="creatorAgency"]/div/button/div
+	独立达人XPATH：//*[@id="arco-select-popup-2"]/div/div/li[3]
+	表格数据XPATH：//*[@id="content-container"]/main/div/div/div/div/div[5]/div/div/div/div/div[2]/div/div/div/div/div/div[2]/table/tbody/tr
+数据信息：
+	第一个td  --> 达人
+	data-e2e="e81f0ced-c73a-1f08" --> 头像
+	data-e2e="fbc99397-6043-1b37" --> 名字
+	data-e2e="7540492b-7c74-bca5"  --> 快速成长榜
+	data-e2e="3b9caa65-c65a-e9df"  --> 个性签名
+	data-e2e="6e905dae-25bf-454b" --> 商店类目
+	data-e2e="9e8f2473-a87f-db74" --> 收入人群  + span -- 完整数据
+	第二个td --> 视频
+	data-e2e="0830b47f-1bbf-a2b4" --> 视频图片
+	第三个td --> 商品交易总额
+	data-e2e="13384c0a-6d3c-80ec" --> 交易额
+	第四个td --> 成交件数
+	data-e2e="9ce6f5fc-571e-6619" --> 成交件数
+	第五个td --> 视频平均播放数
+	data-e2e="ac42cf72-8039-7ab4" --> 视频平均播放数
+	第六个td --> 互动率
+	data-e2e="1ae51110-5bd8-9a32" --> 互动率
+
+详细页
+	data-e2e="2e9732e6-4d06-458d" --> 个人简介
+	data-e2e="61148565-2ea3-4c1b" --> 预计发布率
+
+
