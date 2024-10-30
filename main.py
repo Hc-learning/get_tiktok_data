@@ -1,18 +1,13 @@
+import json
 import logging
 import time
 
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
-from components.gei_webdriver import wait, wd
-from components.gei_webdriver import SETTINGS_DATA
+from components.get_webdriver import wait, driver
+from components.get_webdriver import SETTINGS_DATA
 from selenium.webdriver.support import expected_conditions as EC
-
-# 达人按钮
-# button[data-tid="m4b_button"].arco-btn span.m4b-button-icon
-# 达人机构
-# div.arco-form-item-control-children div.arco-typography:nth-child(5)
-# 表格
-# table tbody tr
+from components.table_data_cleanse import data_cleanse
 
 # 爬取思路
 """
@@ -40,7 +35,7 @@ logging.basicConfig(level=logging.INFO, format='%(lineno)d %(asctime)s - %(level
 # 页面的跳转
 def scrape_page(url, condition, element):
     try:
-        wd.get(url)
+        driver.get(url)
         wait.until(condition(element))
     except TimeoutException as e:
         logging.info(f'错误：{e}')
@@ -52,37 +47,72 @@ def login_():
     try:
         # 登陆账号
         # 切换邮箱登入
-        wd.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Email_Panel_Button').click()
+        driver.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Email_Panel_Button').click()
+        logging.info('切换到邮箱登入')
         # 输入邮箱号
-        email_element = wd.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Email_Input')
+        email_element = driver.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Email_Input')
         email_element.send_keys(SETTINGS_DATA.get('EMAIL'))
+        logging.info('输入邮箱号')
         # 输入密码
-        pwd_element = wd.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Pwd_Input')
+        pwd_element = driver.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Pwd_Input')
         pwd_element.send_keys(SETTINGS_DATA.get('PASSWORD'))
+        logging.info('输入密码')
         # 点击登陆按钮
-        wd.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Btn').click()
+        driver.find_element(By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Btn').click()
+        logging.info('点击登陆按钮')
+        logging.info('出现验证码，请手动完成')
         # 等待页面加载完成
-        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.arco-table-body table tbody')))
+        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'button[data-e2e="e9e98bcf-9e15-8681"] span')))
+        logging.info('登陆成功')
     except TimeoutException as e:
         logging.info(f'错误：数据没有加载成功，{e}')
 
-
+# 点击按钮
 def click_btn():
-    pass
+    try:
+        # 点击达人按钮
+        driver.find_element(By.CSS_SELECTOR, 'button[data-e2e="e9e98bcf-9e15-8681"] span').click()
+        # 点击达人机构
+        driver.find_element(By.XPATH, '//*[@id="creatorAgency"]/div/button/div').click()
+        # 点击独立达人
+        driver.find_element(By.XPATH, '//*[@id="arco-select-popup-2"]/div/div/li[3]').click()
+        logging.info('數據已篩選')
+        return get_data()
+    except TimeoutException as e:
+        logging.info(f'未找到元素：{e}')
+    except Exception as e:
+        logging.info(f'错误：{e}')
 
+# 获取数据
+def get_data():
+    try:
+        # 等待页面加载完成
+        wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="content-container"]/main/div/div/div/div/div[5]/div/div/div/div/div[2]/div/div/div/div/div/div[2]/table/tbody')))
+        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '[data-e2e="e81f0ced-c73a-1f08"]')))
+        # 获取表格数据
+        time.sleep(5)
+        return driver.find_elements(By.XPATH, '//*[@id="content-container"]/main/div/div/div/div/div[5]/div/div/div/div/div[2]/div/div/div/div/div/div[2]/table/tbody/tr')
+    except TimeoutException as e:
+        logging.info(f'未找到元素：{e}')
+    except Exception as e:
+        logging.info(f'错误：{e}')
 
 def run():
-    wd.get(SETTINGS_DATA.get('FIND_ALL_URL'))
-    time.sleep(10)
-    wd.delete_all_cookies()
-    wd.add_cookie({
-        'name': 'cookie_name',
-        'value': 'cookie_value',
-        'sessionid': '68ac918d876c74fe4cc2d830e4a121ed'
-    })
-    wd.refresh()
-    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '.arco-table-body table tbody')))
-
+    try:
+        # 打开网页
+        driver.get(SETTINGS_DATA.get('FIND_ALL_DATA_URL'))
+        # 查看是否登录
+        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Email_Panel_Button')))
+        logging.info('检测到还没有登录，开始登陆')
+        login_()
+    except TimeoutException:
+        logging.info('检测到已经登录')
+    except Exception as e:
+        logging.info(f'错误：{e}')
+    finally:
+        data = click_btn()
+        result = data_cleanse(data)
+        json.dump(result, open('data.json', 'w', encoding='utf-8'), ensure_ascii=False, indent=4)
 
 if __name__ == '__main__':
     run()
