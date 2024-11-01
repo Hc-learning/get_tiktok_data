@@ -9,7 +9,7 @@ from components.get_webdriver import wait, driver
 from components.get_webdriver import SETTINGS_DATA
 from selenium.webdriver.support import expected_conditions as EC
 from components.table_data_cleanse import data_cleanse
-from components.utils import wait_for
+from components.utils import wait_for, progress_bar
 
 # 爬取思路
 """
@@ -123,21 +123,24 @@ def scroll_down():
     page = 1
     count = 12
     trs = None
+    statr_time = time.time()
+    _total_page = (SETTINGS_DATA.get("COLLECT_TOTAL_DATA") // count) * count
     # 循环滚动
     logging.info(f'本次采集數據一共-[ {SETTINGS_DATA.get("COLLECT_TOTAL_DATA")}條 ]數據-')
-    logging.info(f'當前只能采集-[ {(SETTINGS_DATA.get("COLLECT_TOTAL_DATA") // count) * count}條 ]數據-')
+    logging.info(f'當前只能采集-[ {( _total_page)}條 ]數據-')
     try:
-        while count * page <= SETTINGS_DATA.get('COLLECT_TOTAL_DATA'):
+        while (count * page) <= SETTINGS_DATA.get('COLLECT_TOTAL_DATA'):
             trs = get_data()
             for tr in trs[(page -1) * count:]:
                 get_cid(tr)
             if len(trs) >= (count * page):
-                logging.info(f'開始加載第{page}輪數據')
+                progress_bar('頁面獲取進度',statr_time, _total_page, count * page)
                 # 向下滚动表格
                 driver.execute_script("arguments[0].scrollIntoView();", trs[-1])
                 page += 1
-    except Exception:
-        logging.info(f'错误：數據獲取終止，保存剩餘數據')
+        print()
+    except Exception as e:
+        logging.info(f'错误：數據獲取終止，開始保存剩餘數據,{e}')
     finally:
         logging.info(f'當前獲取-[ {len(trs)}條 ]數據-')
         return trs
@@ -148,11 +151,12 @@ def run():
         # 打开网页
         driver.get(SETTINGS_DATA.get('FIND_ALL_DATA_URL'))
         # 查看是否登录
-        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, '#TikTok_Ads_SSO_Login_Email_Panel_Button')))
+        wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, 'table tbody tr')))
+        logging.info('检测到已经登录')
+    except TimeoutException:
         logging.info('检测到还没有登录，开始登陆')
         login_()
-    except TimeoutException:
-        logging.info('检测到已经登录')
+        time.sleep(120)
     except Exception as e:
         logging.info(f'错误：{e}')
     finally:

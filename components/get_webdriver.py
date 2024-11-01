@@ -22,6 +22,8 @@ prefs = {
         }
 }
 option.add_experimental_option('prefs', prefs)
+# 无头模式
+# option.add_argument('--headless=old')
 # driver = webdriver.Chrome( service=SETTINGS_DATA.get('chrome_driver_path'), options=option)
 driver = webdriver.Chrome(service=Service(SETTINGS_DATA.get('chrome_driver_path')), options=option)
 
