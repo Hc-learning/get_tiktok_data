@@ -3,7 +3,7 @@ import time
 from selenium.webdriver.common.by import By
 from components.get_webdriver import  driver
 from config.settings import SETTINGS_DATA
-from modules.user_operate.user_utils import wait_element_visible, input_or_click_element
+from modules.user_operate.user_utils import  input_or_click_element
 
 
 # 批量上傳
@@ -71,8 +71,8 @@ def delete_tag(_tag: str) -> bool:
 def main():
     # 打开链接
     driver.get(SETTINGS_DATA.get('USER_UPLOAD_URL'))
-    # upload_files()
-    delete_tag('0')
+    upload_files()
+    # delete_tag('0')
 
 if __name__ == '__main__':
     main()

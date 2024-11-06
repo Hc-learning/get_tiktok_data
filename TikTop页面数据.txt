@@ -30,6 +30,7 @@
 详细页
 	data-e2e="2e9732e6-4d06-458d" --> 个人简介
 	data-e2e="61148565-2ea3-4c1b" --> 预计发布率(第五个)
+	([data-e2e="e4af3b5a-a87c-dfbd"])[2] [data-e2e="0bc7b49d-b8b3-02d5"]
 	data-e2e="7aed0dd7-48ba-6932" --> 粉絲數
 	[data-e2e="0bc7b49d-b8b3-02d5"] --> 佣金 (第六个)
 	(.pcm-pc-content .pcm-pc-legend) .ecom-data-overflow-text-container

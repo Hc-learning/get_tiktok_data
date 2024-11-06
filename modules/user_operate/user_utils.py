@@ -6,7 +6,7 @@ from components.get_webdriver import driver, wait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-def input_or_click_element(condition: tuple[str, str], incident:str = None ,element:WebElement = None, choose:int = 1, input_value:str = None ) -> WebElement | int|list[WebElement]:
+def input_or_click_element(condition: tuple[str, str], incident:str = None ,element:WebElement = None, choose:int = 1, input_value:str = None ) -> WebElement | int |list[WebElement]:
     # 点击元素
     if element is None:
         element = wait_element_visible(condition, choose)
