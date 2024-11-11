@@ -72,7 +72,7 @@ def main():
     # 打开链接
     driver.get(SETTINGS_DATA.get('USER_UPLOAD_URL'))
     upload_files()
-    # delete_tag('0')
+    # delete_tag('5')
 
 if __name__ == '__main__':
     main()
