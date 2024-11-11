@@ -1,24 +1,7 @@
-import time
-import datetime
-from pathlib import Path
-from time import perf_counter
 
-from selenium.common import TimeoutException
-from selenium.webdriver import ActionChains, Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 
 
 # 讀取xlsx檔案
-import pandas as pd
-
-from components.get_webdriver import driver
-from components.table_data_cleanse import iselement
-from components.utils import wait_for
-
-from openpyxl import load_workbook
-from tenacity import retry, stop_after_attempt
-import copy
 
 # 加载Excel文件
 # workbook = load_workbook('../data.xlsx')
@@ -131,10 +114,10 @@ import copy
 # print(future_date.strftime('%m/%d/%Y') + '1111')  # 输出: 当前日期加 10 天
 
 # 數據切片
-a = [
-    {'name':'xiao1'},
-    {'age':'12'}
-]
+# a = [
+#     {'name':'xiao1'},
+#     {'age':'12'}
+# ]
 
 # b = [
 #     {'name':'xiao2', 'age':'99', 'city':'beijing'},
@@ -150,10 +133,126 @@ a = [
 # print(df)
 
 
-driver.get('https://affiliate.tiktokglobalshop.com/connection/target-invitation/create?creator_ids[0]=7493991992885676258&creator_ids[1]=7493996432515500778&creator_ids[2]=7493997719687367005&creator_ids[3]=7494000761953618894&creator_ids[4]=7494004143427192413&creator_ids[5]=7494004464331556606&creator_ids[6]=7494008989740795926&creator_ids[7]=7494009124373104689&creator_ids[8]=7494009403495909109&creator_ids[9]=7494010320652240592&creator_ids[10]=7494010344646673522&creator_ids[11]=7494010365195289615&creator_ids[12]=7494010854056690785&creator_ids[13]=7494012999735675318&creator_ids[14]=7494013745611311226&creator_ids[15]=7494016216561387202&creator_ids[16]=7494018542024035197&creator_ids[17]=7494018584035887164&creator_ids[18]=7494021806615528839&creator_ids[19]=7494022088330282017&enter_from=affiliate_crm&shop_region=US')
-time.sleep(5)
-driver.execute_script("Array.from(document.querySelectorAll('[role=region]')).forEach(item => item.style.display = 'block')")
-# driver.execute_script("document.querySelector('#target_complete_details_message_input').value = 'adawdawd'")
-driver.find_element(By.ID, 'target_complete_details_message_input').send_keys('我是输入的内容')
+# driver.get('https://www.baidu.com')
+# time.sleep(5)
+# driver.find_element(By.ID, 'kw').send_keys('selenium')
+# time.sleep(2)
+# driver.find_element(By.ID, 'kw').clear()
 
-input()
+# driver.execute_script("Array.from(document.querySelectorAll('[role=region]')).forEach(item => item.style.display = 'block')")
+# driver.execute_script("document.querySelector('#target_complete_details_message_input').value = 'adawdawd'")
+# driver.find_element(By.ID, 'target_complete_details_message_input').send_keys('我是输入的内容')
+
+# input()
+
+
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+import requests
+import json
+import time
+
+# 官方文档地址
+# https://doc2.bitbrowser.cn/jiekou/ben-di-fu-wu-zhi-nan.html
+
+# 此demo仅作为参考使用，以下使用的指纹参数仅是部分参数，完整参数请参考文档
+class BrowserApi:
+    def __init__(self, name):
+        self.url = "http://127.0.0.1:54345"
+        self.headers = {'Content-Type': 'application/json'}
+        self.name = name
+
+
+    def createBrowser(self):  # 创建或者更新窗口，指纹参数 browserFingerPrint 如没有特定需求，只需要指定下内核即可，如果需要更详细的参数，请参考文档
+        json_data = {
+            'name': self.name,  # 窗口名称
+            'remark': '',  # 备注
+            'proxyMethod': 2,  # 代理方式 2自定义 3 提取IP
+            # 代理类型  ['noproxy', 'http', 'https', 'socks5', 'ssh']
+            'proxyType': 'noproxy',
+            'host': '',  # 代理主机
+            'port': '',  # 代理端口
+            'proxyUserName': '',  # 代理账号
+            "browserFingerPrint": {  # 指纹对象
+                'coreVersion': '124'  # 内核版本，注意，win7/win8/winserver 2012 已经不支持112及以上内核了，无法打开
+            }
+        }
+
+        res = requests.post(f"{self.url}/browser/update",
+                            data=json.dumps(json_data), headers=self.headers).json()
+        browserId = res['data']['id']
+        print(browserId)
+        return browserId
+
+
+    def updateBrowser(self):  # 更新窗口，支持批量更新和按需更新，ids 传入数组，单独更新只传一个id即可，只传入需要修改的字段即可，比如修改备注，具体字段请参考文档，browserFingerPrint指纹对象不修改，则无需传入
+        json_data = {'ids': ['93672cf112a044f08b653cab691216f0'],
+                     'remark': '我是一个备注', 'browserFingerPrint': {}}
+        res = requests.post(f"{self.url}/browser/update/partial",
+                            data=json.dumps(json_data), headers=self.headers).json()
+        print(res)
+
+
+    def openBrowser(self, id_):  # 直接指定ID打开窗口，也可以使用 createBrowser 方法返回的ID
+        json_data = {"id": f'{id_}'}
+        res = requests.post(f"{self.url}/browser/open",
+                            data=json.dumps(json_data), headers=self.headers).json()
+        return res
+
+
+    def closeBrowser(self, _id):  # 关闭窗口
+        json_data = {'id': f'{_id}'}
+        requests.post(f"{self.url}/browser/close",
+                      data=json.dumps(json_data), headers=self.headers).json()
+
+
+    def deleteBrowser(self, _id):  # 删除窗口
+        json_data = {'id': f'{_id}'}
+        print(requests.post(f"{self.url}/browser/delete",
+              data=json.dumps(json_data), headers=self.headers).json())
+
+
+if __name__ == '__main__':
+    # browser_id = createBrowser()
+    # openBrowser(browser_id)
+    #
+    # time.sleep(10)  # 等待10秒自动关闭窗口
+    #
+    # closeBrowser(browser_id)
+    #
+    # time.sleep(10)  # 等待10秒自动删掉窗口
+
+    # deleteBrowser('12e9e766145c4e889efec6ccb057c3b0')
+    pass
+# # /browser/open 接口会返回 selenium使用的http地址，以及webdriver的path，直接使用即可
+# res = openBrowser("15724e57fc0e490baeaa5ab853abfe54") # 窗口ID从窗口配置界面中复制，或者api创建后返回
+#
+# print(res)
+#
+# driverPath = res['data']['driver']
+# debuggerAddress = res['data']['http']
+#
+# # selenium 连接代码
+# chrome_options = webdriver.ChromeOptions()
+# chrome_options.add_experimental_option("debuggerAddress", debuggerAddress)
+#
+# chrome_service = Service(driverPath)
+# driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+#
+# # 以下为PC模式下，打开baidu，输入 BitBrowser，点击搜索的案例
+# driver.get('https://www.baidu.com/')
+#
+# input = driver.find_element(By.CLASS_NAME, 's_ipt')
+# input.send_keys('BitBrowser')
+#
+# print('before click...')
+#
+# btn = driver.find_element(By.CLASS_NAME, 's_btn')
+# btn.click()
+#
+# print('after click')
